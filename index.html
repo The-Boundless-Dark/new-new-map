@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>여러개 마커에 이벤트 등록하기1</title>
+    
+</head>
+<body>
+<div id="map" style="width:100%;height:350px;"></div>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=61de2e49f78d15499bc7687eea256318"></script>
+<script>
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div  
+    mapOption = { 
+        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+        level: 3 // 지도의 확대 레벨
+    };
+
+var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+ 
+// 마커를 표시할 위치와 내용을 가지고 있는 객체 배열입니다 
+var positions = [
+{
+content: '<div>양재1동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4716677303525,127.026666903633)
+},
+{
+content: '<div>논현1동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.5115051266617,127.028535614143)
+},
+{
+content: '<div>도곡2동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4842044239158,127.04673626965)
+},
+{
+content: '<div>개포2동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4897839834965,127.069076700417)
+},
+{
+content: '<div>일원1동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.49184926081,127.088023332956)
+},
+{
+content: '<div>논현2동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.5172833949743,127.03720409447)
+},
+{
+content: '<div>일원2동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.492155586165,127.073681289866)
+},
+{
+content: '<div>일원본동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4833778296294,127.086482095846)
+},
+{
+content: '<div>서초4동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.5027163539552,127.02221060514)
+},
+{
+content: '<div>수서동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4889034208812,127.104990867396)
+},
+{
+content: '<div>삼성1동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.5143527158101,127.062605828181)
+},
+{
+content: '<div>개포4동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4788262237293,127.051662534414)
+},
+{
+content: '<div>반포2동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.5045883982294,126.99447284255)
+},
+{
+content: '<div>역삼1동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4953739882902,127.033284429482)
+},
+{
+content: '<div>대치1동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4932459411649,127.056775805528)
+},
+{
+content: '<div>청담동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.5250929779353,127.049291405109)
+},
+{
+content: '<div>개포1동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4827180610645,127.055581803811)
+},
+{
+content: '<div>방배2동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4798409296261,126.985713633392)
+},
+{
+content: '<div>대치2동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.502305148815,127.064188631213)
+},
+{
+content: '<div>삼성2동주민센타</div>',
+latlng: new kakao.maps.LatLng(37.5112062396529,127.045976163343)
+},
+{
+content: '<div>세곡동주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4690516972714,127.10691394412)
+},
+{
+content: '<div>역삼2동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4959708142546,127.04681363355)
+},
+{
+content: '<div>대치4동 주민센터</div>',
+latlng: new kakao.maps.LatLng(37.4997307450914,127.057849716803)
+}
+];
+
+for (var i = 0; i < positions.length; i ++) {
+    // 마커를 생성합니다
+    var marker = new kakao.maps.Marker({
+        map: map, // 마커를 표시할 지도
+        position: positions[i].latlng // 마커의 위치
+    });
+
+    // 마커에 표시할 인포윈도우를 생성합니다 
+    var infowindow = new kakao.maps.InfoWindow({
+        content: positions[i].content // 인포윈도우에 표시할 내용
+    });
+
+    // 마커에 mouseover 이벤트와 mouseout 이벤트를 등록합니다
+    // 이벤트 리스너로는 클로저를 만들어 등록합니다 
+    // for문에서 클로저를 만들어 주지 않으면 마지막 마커에만 이벤트가 등록됩니다
+    kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+    kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+}
+
+// 인포윈도우를 표시하는 클로저를 만드는 함수입니다 
+function makeOverListener(map, marker, infowindow) {
+    return function() {
+        infowindow.open(map, marker);
+    };
+}
+
+// 인포윈도우를 닫는 클로저를 만드는 함수입니다 
+function makeOutListener(infowindow) {
+    return function() {
+        infowindow.close();
+    };
+}
+
+/* 아래와 같이도 할 수 있습니다 */
+/*
+for (var i = 0; i < positions.length; i ++) {
+    // 마커를 생성합니다
+    var marker = new kakao.maps.Marker({
+        map: map, // 마커를 표시할 지도
+        position: positions[i].latlng // 마커의 위치
+    });
+
+    // 마커에 표시할 인포윈도우를 생성합니다 
+    var infowindow = new kakao.maps.InfoWindow({
+        content: positions[i].content // 인포윈도우에 표시할 내용
+    });
+
+    // 마커에 이벤트를 등록하는 함수 만들고 즉시 호출하여 클로저를 만듭니다
+    // 클로저를 만들어 주지 않으면 마지막 마커에만 이벤트가 등록됩니다
+    (function(marker, infowindow) {
+        // 마커에 mouseover 이벤트를 등록하고 마우스 오버 시 인포윈도우를 표시합니다 
+        kakao.maps.event.addListener(marker, 'mouseover', function() {
+            infowindow.open(map, marker);
+        });
+
+        // 마커에 mouseout 이벤트를 등록하고 마우스 아웃 시 인포윈도우를 닫습니다
+        kakao.maps.event.addListener(marker, 'mouseout', function() {
+            infowindow.close();
+        });
+    })(marker, infowindow);
+}
+*/
+</script>
+</body>
+</html>
